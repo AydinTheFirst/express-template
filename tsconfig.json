@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Node LTS",
+  "_version": "20.1.0",
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    "rootDir": "src",
+    "outDir": "dist",
+
+    "resolveJsonModule": true
+  },
+
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
