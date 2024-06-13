@@ -1,5 +1,6 @@
 import { IUser, UserModel } from "@/database/models/User";
 import { NotFoundError } from "@/lib/express";
+import { uuid } from "@/utils";
 import { Request, Response } from "express";
 
 const userMutator = (user: IUser) => {
@@ -24,23 +25,29 @@ class UsersController {
   };
 
   create = async (req: Request, res: Response) => {
-    const user = await UserModel.create(req.body);
+    const user = await UserModel.create({
+      id: uuid(),
+      createdAt: Date.now(),
+      ...req.body,
+    });
     res.send(userMutator(user));
   };
 
   update = async (req: Request, res: Response) => {
-    const user = await UserModel.findOneAndUpdate(
-      { id: req.params.id },
-      req.body
-    );
-
+    const user = await UserModel.findOne({ id: req.params.id });
     if (!user) return NotFoundError(res, "User not found");
+
+    Object.assign(user, req.body);
+    await user.save();
+
     res.send(userMutator(user));
   };
 
   delete = async (req: Request, res: Response) => {
-    const user = await UserModel.findOneAndDelete({ id: req.params.id });
+    const user = await UserModel.findOne({ id: req.params.id });
     if (!user) return NotFoundError(res, "User not found");
+
+    await user.deleteOne();
 
     res.send(userMutator(user));
   };

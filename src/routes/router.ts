@@ -3,7 +3,7 @@ import { ApiRouter } from "./ApiRouter";
 import { NotFoundError } from "@/lib/express";
 
 const router = Router();
-export { router as AppRouter };
+export { router };
 
 router.use("/api", ApiRouter);
 

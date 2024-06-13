@@ -1,13 +1,12 @@
+import config from "@/config";
 import Logger from "@/lib/Logger";
 import mongoose from "mongoose";
 
-const connectDB = async () => {
+(async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI!);
-    Logger.debug("Connected to MongoDB");
-  } catch (error) {
-    throw error;
+    const conn = await mongoose.connect(config.mongodbURI!);
+    Logger.success(`MongoDB connected: ${conn.connection.host}`);
+  } catch (error: any) {
+    Logger.error(`Error: ${error.message}`);
   }
-};
-
-connectDB();
+})();

@@ -8,6 +8,7 @@ interface ISchema {
   password: string;
   tokenId: string;
   createdAt: number;
+  isAdmin: boolean;
 }
 
 const model = mongoose.model<ISchema>(
@@ -18,8 +19,9 @@ const model = mongoose.model<ISchema>(
     username: { type: String, required: true },
     email: { type: String, required: true },
     password: { type: String, required: true },
-    tokenId: { type: String, required: true },
+    tokenId: { type: String, required: false },
     createdAt: { type: Number, required: false, default: Date.now },
+    isAdmin: { type: Boolean, required: false, default: false },
   })
 );
 

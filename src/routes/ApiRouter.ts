@@ -1,16 +1,24 @@
-import pkg from "../../package.json";
 import { Router } from "express";
-import { UsersRouter } from "./UsersRouter";
-import { AuthRouter } from "./AuthRouter";
+import fs from "node:fs";
+
 import { NotFoundError } from "@/lib/express";
+import { BearerAuth } from "@/auth";
+import { rateLimit } from "@/middlewares";
+
+import { AuthRouter } from "./AuthRouter";
+import { UsersRouter } from "./UsersRouter";
 
 const router = Router();
 export { router as ApiRouter };
 
+router.use(rateLimit);
+router.use(BearerAuth);
+
 router.use("/auth", AuthRouter);
 router.use("/users", UsersRouter);
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
+  const pkg = JSON.parse(fs.readFileSync("package.json", "utf-8"));
   res.send({
     message: "API is working!",
     name: pkg.name,

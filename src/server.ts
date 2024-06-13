@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
 
-import { AppRouter } from "@/routes/AppRouter";
 import { upload } from "@/lib/multer";
 import Logger from "@/lib/Logger";
+import config from "@/config";
+import { router } from "@/routes/router";
 
 const app = express();
 
@@ -16,13 +17,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(upload.any());
 
 app.use((req, _res, next) => {
-  Logger.debug(`${req.method} ${req.url}`);
+  Logger.debug(`${req.method} => ${req.url}`);
   next();
 });
 
-app.use(AppRouter);
+app.use(router);
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  Logger.debug(`Server running on port ${port}`);
+app.listen(config.port, () => {
+  Logger.debug(`Server is running on http://localhost:${config.port}`);
 });

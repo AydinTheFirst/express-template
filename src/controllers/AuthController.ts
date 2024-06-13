@@ -1,26 +1,9 @@
 import { UserModel } from "@/database/models/User";
-import {
-  BadRequestError,
-  InvalidPayloadError,
-  NotFoundError,
-} from "@/lib/express";
+import { BadRequestError, NotFoundError } from "@/lib/express";
 import { Request, Response } from "express";
-import { z } from "zod";
 import bcrypt from "bcrypt";
 import { TokenModel } from "@/database/models/Token";
-import { generateToken } from "@/utils";
-
-const LoginSchema = z.object({
-  username: z.string(),
-  password: z.string(),
-});
-
-const RegisterSchema = z.object({
-  displayName: z.string(),
-  username: z.string(),
-  email: z.string(),
-  password: z.string(),
-});
+import { generateToken, uuid } from "@/utils";
 
 class AuthController {
   getMe(req: Request, res: Response) {
@@ -28,15 +11,10 @@ class AuthController {
   }
 
   async login(req: Request, res: Response) {
-    const parsed = LoginSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return InvalidPayloadError(res, parsed.error);
-    }
-
-    const { username, password } = parsed.data;
+    const { username, password } = req.body;
 
     const user = await UserModel.findOne({
-      username,
+      $or: [{ username }, { email: username }],
     });
 
     if (!user) {
@@ -55,21 +33,18 @@ class AuthController {
     }
 
     const newToken = await TokenModel.create({
+      id: uuid(),
       userId: user.id,
       token: generateToken(),
       expiresAt: Date.now() + 1000 * 60 * 60 * 24,
+      createdAt: Date.now(),
     });
 
     res.send({ token: newToken.token });
   }
 
   async register(req: Request, res: Response) {
-    const parsed = RegisterSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return InvalidPayloadError(res, parsed.error);
-    }
-
-    const { displayName, username, email, password } = parsed.data;
+    const { displayName, username, email, password } = req.body;
 
     const user = await UserModel.findOne({
       $or: [{ username }, { email }],
@@ -82,6 +57,7 @@ class AuthController {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await UserModel.create({
+      id: uuid(),
       displayName,
       username,
       email,

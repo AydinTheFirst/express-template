@@ -1,14 +1,7 @@
-import { NextFunction, Response, Router, Request } from "express";
-import { ZodError } from "zod";
+import { NextFunction, Response, Request } from "express";
 
 type ErrorMessage = string | Record<string, unknown> | Array<unknown>;
 
-/**
- *
- * @param res Response object
- * @param statusCode HTTP status code
- * @param message error message
- */
 export const APIError = (
   res: Response,
   statusCode: number,
@@ -44,34 +37,20 @@ export const InvalidPayloadError = (res: Response, error: Zod.ZodError) => {
   res.status(422).send({ message: "Invalid payload", errors: errorMessage });
 };
 
-/**
- * Wraps an Express route handler with error handling middleware
- * @param fn Function to be wrapped
- * @returns Express Request Handler
- */
 export const asyncHandler =
   (fn: Function) => (req: Request, res: Response, next: NextFunction) => {
     return Promise.resolve(fn(req, res, next)).catch(next);
   };
 
-/**
- * Wraps an Express Router with error handling middleware
- * @param router Express Router
- * @returns Express Router
- */
-export const asyncRouter = (router: Router) => {
-  return router.use(
-    (err: any, _req: Request, res: Response, next: NextFunction) => {
-      if (err instanceof ZodError) {
-        return InvalidPayloadError(res, err);
-      }
+export const VerifyPayload = (schema: Zod.ZodObject<any, any>) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
 
-      if (err instanceof Error) {
-        console.error(err);
-        return APIError(res, 500, "Internal Server Error");
-      }
-
-      next();
+    if (result.success) {
+      req.body = result.data;
+      return next();
     }
-  );
+
+    InvalidPayloadError(res, result.error);
+  };
 };

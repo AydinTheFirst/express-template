@@ -25,7 +25,7 @@ class Logger {
   };
 
   debug = (message: string) => {
-    console.debug(chalk.gray(this.log(message)));
+    console.debug(chalk.cyan(this.log(message)));
   };
 }
 
