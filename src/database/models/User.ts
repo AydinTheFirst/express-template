@@ -1,7 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
 interface ISchema {
-  id: string;
   displayName: string;
   username: string;
   email: string;
@@ -14,7 +13,6 @@ interface ISchema {
 const model = mongoose.model<ISchema>(
   "user",
   new Schema<ISchema>({
-    id: { type: String, required: true },
     displayName: { type: String, required: true },
     username: { type: String, required: true },
     email: { type: String, required: true },

@@ -19,14 +19,13 @@ class UsersController {
   };
 
   getOne = async (req: Request, res: Response) => {
-    const user = await UserModel.findOne({ id: req.params.id });
+    const user = await UserModel.findById(req.params.id);
     if (!user) return NotFoundError(res, "User not found");
     res.send(userMutator(user));
   };
 
   create = async (req: Request, res: Response) => {
     const user = await UserModel.create({
-      id: uuid(),
       createdAt: Date.now(),
       ...req.body,
     });
@@ -34,7 +33,7 @@ class UsersController {
   };
 
   update = async (req: Request, res: Response) => {
-    const user = await UserModel.findOne({ id: req.params.id });
+    const user = await UserModel.findById(req.params.id);
     if (!user) return NotFoundError(res, "User not found");
 
     Object.assign(user, req.body);
@@ -44,7 +43,7 @@ class UsersController {
   };
 
   delete = async (req: Request, res: Response) => {
-    const user = await UserModel.findOne({ id: req.params.id });
+    const user = await UserModel.findById(req.params.id);
     if (!user) return NotFoundError(res, "User not found");
 
     await user.deleteOne();

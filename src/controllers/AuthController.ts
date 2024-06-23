@@ -3,7 +3,7 @@ import { BadRequestError, NotFoundError } from "@/lib/express";
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { TokenModel } from "@/database/models/Token";
-import { generateToken, uuid } from "@/utils";
+import { generateToken } from "@/utils";
 
 class AuthController {
   getMe(req: Request, res: Response) {
@@ -26,15 +26,14 @@ class AuthController {
       return NotFoundError(res, "User not found");
     }
 
-    const token = await TokenModel.findOne({ userId: user.id });
+    const token = await TokenModel.findOne({ userId: user._id });
 
     if (token && token.expiresAt > Date.now()) {
       return res.send({ token: token.token });
     }
 
     const newToken = await TokenModel.create({
-      id: uuid(),
-      userId: user.id,
+      userId: user._id,
       token: generateToken(),
       expiresAt: Date.now() + 1000 * 60 * 60 * 24,
       createdAt: Date.now(),
@@ -57,7 +56,6 @@ class AuthController {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await UserModel.create({
-      id: uuid(),
       displayName,
       username,
       email,
